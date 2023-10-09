@@ -1,21 +1,24 @@
 import { Response } from 'express';
 import httpStatus from 'http-status';
 import { AuthenticatedRequest } from '@/middlewares';
-import { InputPaymentBody } from '@/protocols';
-import { paymentsService } from '@/services';
+import { paymentService } from '@/services/';
+import { CreatePaymentBody, TicketId } from '@/protocols';
+import { invalidDataError } from '@/errors';
 
-export async function getPaymentByTicketId(req: AuthenticatedRequest, res: Response) {
-  const ticketId = Number(req.query.ticketId);
+export async function getPaymentByTicket(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
+  const { ticketId } = req.query as TicketId;
+  if (!ticketId) throw invalidDataError('The ticketId is required');
 
-  const payment = await paymentsService.getPaymentByTicketId(userId, ticketId);
-  return res.status(httpStatus.OK).send(payment);
+  const result = await paymentService.getPaymentByTicket(userId, Number(ticketId));
+  return res.status(httpStatus.OK).send(result);
 }
 
-export async function paymentProcess(req: AuthenticatedRequest, res: Response) {
+export async function createPaymentToTicket(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  const { ticketId, cardData } = req.body as InputPaymentBody;
+  const data = req.body as CreatePaymentBody;
 
-  const payment = await paymentsService.paymentProcess(ticketId, userId, cardData);
-  res.status(httpStatus.OK).send(payment);
+  const result = await paymentService.createPaymentToTicket(userId, data);
+
+  return res.status(httpStatus.OK).send(result);
 }

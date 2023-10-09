@@ -1,4 +1,4 @@
-import { Enrollment } from '@prisma/client';
+import { Address, Enrollment } from '@prisma/client';
 import { prisma } from '@/config';
 
 async function findWithAddressByUserId(userId: number) {
@@ -26,6 +26,7 @@ async function upsert(
 
 export type CreateEnrollmentParams = Omit<Enrollment, 'id' | 'createdAt' | 'updatedAt'>;
 export type UpdateEnrollmentParams = Omit<CreateEnrollmentParams, 'userId'>;
+export type EnrollmentWithAddress = Enrollment & { Address: Address[] };
 
 export const enrollmentRepository = {
   findWithAddressByUserId,
